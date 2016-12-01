@@ -1,0 +1,3 @@
+GIT_REMOTE=https://github.com/DynareTeam/dynare.git
+GIT_BRANCH=master
+VERSION=
