@@ -143,8 +143,6 @@ mv dynare_m.exe matlab/preprocessor32/
 # Cleanup mex folders under build directory
 rm -f mex/matlab/*.mexw32 mex/matlab/*.mexw64 mex/matlab/*.dll mex/octave/*.mex
 
-#NTHREADS=1 # Build of the mex files is buggy in parallel model (probably a missing dependency).
-
 # Create Windows 32-bit DLL binaries for MATLAB R2008b
 cd mex/build/matlab
 ./configure --host=i686-w64-mingw32 \
