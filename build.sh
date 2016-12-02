@@ -228,3 +228,7 @@ make clean
 make -j$NTHREADS all
 cd $THIS_BUILD_DIRECTORY
 i686-w64-mingw32-strip mex/octave/*.mex mex/octave/*.oct
+
+# Create Windows snapshot
+cd windows
+makensis dynare.nsi
