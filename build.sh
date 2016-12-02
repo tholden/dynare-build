@@ -7,6 +7,9 @@
 # Exit on first error
 set -ex
 
+# Set options.
+FORCE_REWRITE=0
+
 # Set the number of threads
 NTHREADS=`nproc --all`
 
@@ -39,6 +42,7 @@ then
 fi
 
 BASENAME=dynare-$VERSION
+__BASENAME__=dynare-$SHORT_SHA
 
 # Get current directory
 SNAPSHOT_DIRECTORY=`pwd`
@@ -55,23 +59,33 @@ WINDOWS_DIRECTORY=$SNAPSHOT_DIRECTORY/win
 BUILDS_DIRECTORY=$SNAPSHOT_DIRECTORY/builds
 THIS_BUILD_DIRECTORY=$BUILDS_DIRECTORY/$BASENAME
 
+# Set source TARBALL name
+TARBALL_NAME=$__BASENAME__.tar.xz
+
+# Set default values for dummy variables
+MAKE_SOURCE_TARBALL=1
+CLONE_REMOTE_REPOSITORY=1
+
 # Test if there is something new on the remote.
 if [ -d "$GITWORK_DIRECTORY" ]; then
-    if [ -f "$SOURCES_DIRECTORY/$BASENAME.tar.xz"  ]; then
+    if [ -f "$SOURCES_DIRECTORY/$TARBALL_NAME"  ]; then
 	if [ -f "$WINDOWS_DIRECTORY/$BASENAME-win.exe" ]; then
 	    tput setaf 1; echo "Dynare ($LAST_HASH) has already been compiled!"
 	    exit 1
-	else
-	    rm -rf $GITWORK_DIRECTORY
-	    rm $SOURCES_DIRECTORY/$BASENAME.tar.xz
 	fi
+	MAKE_SOURCE_TARBALL=0
     else
-	rm -rf $GITWORK_DIRECTORY
+	MAKE_SOURCE_TARBALL=1
     fi
+    CLONE_REMOTE_REPOSITORY=0
+else
+    CLONE_REMOTE_REPOSITORY=1
 fi
 
 # Clone remote branch
-git clone --recursive --depth 1 --branch $GIT_BRANCH $GIT_REMOTE $GITWORK_DIRECTORY
+if [ $CLONE_REMOTE_REPOSITORY -eq 1 ]; then
+    git clone --recursive --depth 1 --branch $GIT_BRANCH $GIT_REMOTE $GITWORK_DIRECTORY
+fi
 
 # Clean build directories
 delete_oldest_folders $GITREPO_DIRECTORY 10
@@ -80,31 +94,38 @@ delete_oldest_files_with_given_extension $SOURCES_DIRECTORY tar.xz 10
 delete_oldest_files_with_given_extension $WINDOWS_DIRECTORY exe 10
 delete_oldest_files_with_given_extension $WINDOWS_DIRECTORY zip 10
 
-# Go into build directory
-cd $GITWORK_DIRECTORY
-
-# Update version number with current date and sha1 digest
-cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$GIT_BRANCH-$DATE-$SHORT_SHA])/" > configure.ac.new
-mv configure.ac.new configure.ac
-cd $GITWORK_DIRECTORY/mex/build/octave
-cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$GIT_BRANCH-$DATE-$SHORT_SHA])/" > configure.ac.new
-mv configure.ac.new configure.ac
-cd $GITWORK_DIRECTORY/mex/build/matlab
-cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$GIT_BRANCH-$DATE-$SHORT_SHA])/" > configure.ac.new
-mv configure.ac.new configure.ac
-cd $GITWORK_DIRECTORY
-
-# Create snapshot source (tarball)
-autoreconf -si
-./configure
-make dist
-
-# Move tarball
-mv $BASENAME.tar.xz $SOURCES_DIRECTORY
+if [ $MAKE_SOURCE_TARBALL -eq 1 ]; then
+    # Go into build directory
+    cd $GITWORK_DIRECTORY
+    # Update version number with current date and sha1 digest
+    cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$GIT_BRANCH-$DATE-$SHORT_SHA])/" > configure.ac.new
+    mv configure.ac.new configure.ac
+    cd $GITWORK_DIRECTORY/mex/build/octave
+    cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$GIT_BRANCH-$DATE-$SHORT_SHA])/" > configure.ac.new
+    mv configure.ac.new configure.ac
+    cd $GITWORK_DIRECTORY/mex/build/matlab
+    cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$GIT_BRANCH-$DATE-$SHORT_SHA])/" > configure.ac.new
+    mv configure.ac.new configure.ac
+    cd $GITWORK_DIRECTORY
+    # Create snapshot source (tarball)
+    autoreconf -si
+    ./configure
+    make dist
+    # Move tarball
+    mv $BASENAME.tar.xz $SOURCES_DIRECTORY/$TARBALL_NAME
+fi
 
 # Extract tarball in BUILDS_DIRECTORY
-cd $SOURCES_DIRECTORY
-tar xavf $BASENAME.tar.xz -C $BUILDS_DIRECTORY  
+if [ -d $THIS_BUILD_DIRECTORY ]; then
+   if [ $FORCE_REWRITE -eq 1 ]; then
+      rm -rf $THIS_BUILD_DIRECTORY
+      cd $SOURCES_DIRECTORY
+      tar xavf $TARBALL_NAME -C $BUILDS_DIRECTORY/
+   fi
+else
+    cd $SOURCES_DIRECTORY
+    tar xavf $TARBALL_NAME -C $BUILDS_DIRECTORY/
+fi
 
 # Go to the build directory
 cd $THIS_BUILD_DIRECTORY
