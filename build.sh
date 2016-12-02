@@ -197,8 +197,8 @@ make clean
 make -j$NTHREADS all
 cd $THIS_BUILD_DIRECTORY
 x86_64-w64-mingw32-strip mex/matlab/*.mexw64
-mkdir -p mex/matlab/win64-7.8-9.0
-mv mex/matlab/*.mexw64 mex/matlab/win64-7.8-9.0
+mkdir -p mex/matlab/win64-7.8-9.1
+mv mex/matlab/*.mexw64 mex/matlab/win64-7.8-9.1
 
 # Create Windows DLL binaries for Octave/MinGW
 cd mex/build/octave
