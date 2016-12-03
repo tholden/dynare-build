@@ -93,3 +93,116 @@ delete_oldest_folders () {
 	echo `pwd`
     fi
 }
+
+movedir () {
+    # Moves a directory from $1 to $2. If $2 already exist, its content is updated.
+    #
+    # INPUTS
+    # [1] Directory to be moved.
+    # [2] New dirtectory path.
+    #
+    # OUTPUTS
+    # None
+    if [ ! -d $1 ]; then
+	echo "Directory $1 not found!"
+	exit 1
+    fi
+    if [ ! -d $2 ]; then
+	mv $1 $2
+    else
+	rsync -a $1 $2
+	rm -rf $1
+    fi
+}
+
+build_windows_matlab_mex_32 () {
+    # Create Windows 32-bit DLL binaries for MATLAB R2008b
+    mkdir -p $TMP_DIRECTORY/$BASENAME-matlab-win32 
+    cp -r $THIS_BUILD_DIRECTORY/* $TMP_DIRECTORY/$BASENAME-matlab-win32
+    cd $TMP_DIRECTORY/$BASENAME-matlab-win32/mex/build/matlab
+    ./configure --host=i686-w64-mingw32 \
+		--with-boost=$LIB32/Boost \
+		--with-gsl=$LIB32/Gsl \
+		--with-matio=$LIB32/matIO \
+		--with-slicot=$LIB32/Slicot/without-underscore \
+		--with-matlab=$LIB32/matlab/R2008b \
+		MATLAB_VERSION=R2008b \
+		MEXEXT=mexw32 \
+		PACKAGE_VERSION=$VERSION \
+		PACKAGE_STRING="dynare $VERSION"
+    make -j$NTHREADS all
+    cd $TMP_DIRECTORY/$BASENAME-matlab-win32/
+    i686-w64-mingw32-strip mex/matlab/*.mexw32
+    mkdir -p mex/matlab/win32-7.5-8.6
+    mv mex/matlab/*.mexw32 mex/matlab/win32-7.5-8.6
+    movedir mex/matlab/win32-7.5-8.6 $THIS_BUILD_DIRECTORY/mex/matlab
+    cd $ROOT_DIRECTORY
+    rm -rf $TMP_DIRECTORY/$BASENAME-matlab-win32
+}
+
+build_windows_matlab_mex_64_a () {
+    # Create Windows 64-bit DLL binaries for MATLAB R2008b
+    mkdir -p $TMP_DIRECTORY/$BASENAME-matlab-win64-a
+    cp -r $THIS_BUILD_DIRECTORY/* $TMP_DIRECTORY/$BASENAME-matlab-win64-a
+    cd $TMP_DIRECTORY/$BASENAME-matlab-win64-a/mex/build/matlab
+    ./configure --host=x86_64-w64-mingw32 \
+		--with-boost=$LIB64/Boost \
+		--with-gsl=$LIB64/Gsl \
+		--with-matio=$LIB64/matIO \
+		--with-slicot=$LIB64/Slicot \
+		--with-matlab=$LIB64/matlab/R2008b \
+		MATLAB_VERSION=R2008b \
+		MEXEXT=mexw64 \
+		PACKAGE_VERSION=$VERSION \
+		PACKAGE_STRING="dynare $VERSION"
+    make -j$NTHREADS all
+    cd $TMP_DIRECTORY/$BASENAME-matlab-win64-a/
+    x86_64-w64-mingw32-strip mex/matlab/*.mexw64
+    mkdir -p mex/matlab/win64-7.5-7.7
+    mv mex/matlab/*.mexw64 mex/matlab/win64-7.5-7.7
+    movedir mex/matlab/win64-7.5-7.7 $THIS_BUILD_DIRECTORY/mex/matlab
+    cd $ROOT_DIRECTORY
+    rm -rf $TMP_DIRECTORY/$BASENAME-matlab-win64-a
+}
+
+build_windows_matlab_mex_64_b () {
+    # Create Windows 64-bit DLL binaries for MATLAB R2008b
+    mkdir -p $TMP_DIRECTORY/$BASENAME-matlab-win64-b
+    cp -r $THIS_BUILD_DIRECTORY/* $TMP_DIRECTORY/$BASENAME-matlab-win64-b
+    cd $TMP_DIRECTORY/$BASENAME-matlab-win64-b/mex/build/matlab
+    ./configure --host=x86_64-w64-mingw32 \
+		--with-boost=$LIB64/Boost \
+		--with-gsl=$LIB64/Gsl \
+		--with-matio=$LIB64/matIO \
+		--with-slicot=$LIB64/Slicot \
+		--with-matlab=$LIB64/matlab/R2009a \
+		MATLAB_VERSION=R2009a \
+		MEXEXT=mexw64 \
+		PACKAGE_VERSION=$VERSION \
+		PACKAGE_STRING="dynare $VERSION"
+    make -j$NTHREADS all
+    cd $TMP_DIRECTORY/$BASENAME-matlab-win64-b/
+    x86_64-w64-mingw32-strip mex/matlab/*.mexw64
+    mkdir -p mex/matlab/win64-7.8-9.1
+    mv mex/matlab/*.mexw64 mex/matlab/win64-7.8-9.1
+    movedir mex/matlab/win64-7.8-9.1 $THIS_BUILD_DIRECTORY/mex/matlab
+    cd $ROOT_DIRECTORY
+    rm -r $TMP_DIRECTORY/$BASENAME-matlab-win64-b
+}
+
+build_windows_octave_mex_32 () {
+    # Create Windows DLL binaries for Octave/MinGW
+    mkdir -p $TMP_DIRECTORY/$BASENAME-octave
+    cp -r $THIS_BUILD_DIRECTORY/* $TMP_DIRECTORY/$BASENAME-octave
+    cd $TMP_DIRECTORY/$BASENAME-octave/mex/build/octave
+    ./configure --host=i686-w64-mingw32 MKOCTFILE=$LIB32/mkoctfile --with-boost=$LIB32/Boost --with-gsl=$LIB32/Gsl --with-matio=$LIB32/matIO --with-slicot=$LIB32/Slicot/with-underscore PACKAGE_VERSION=$VERSION PACKAGE_STRING="dynare $VERSION"
+    make -j$NTHREADS all
+    cd $TMP_DIRECTORY/$BASENAME-octave/
+    mv mex/octave/octave/*.mex mex/octave/
+    mv mex/octave/octave/*.oct mex/octave/
+    rm -rf mex/octave/octave
+    i686-w64-mingw32-strip mex/octave/*.mex mex/octave/*.oct
+    mv mex/octave/* $THIS_BUILD_DIRECTORY/mex/octave
+    cd $ROOT_DIRECTORY
+    rm -rf $TMP_DIRECTORY/$BASENAME-octave
+}

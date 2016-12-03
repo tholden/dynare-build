@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Produces Dynare snapshot (tarball and windows installer).
 
@@ -164,71 +164,32 @@ mv dynare_m.exe matlab/preprocessor32/
 # Cleanup mex folders under build directory
 rm -f mex/matlab/*.mexw32 mex/matlab/*.mexw64 mex/matlab/*.dll mex/octave/*.mex
 
-# Create Windows 32-bit DLL binaries for MATLAB R2008b
-cd mex/build/matlab
-./configure --host=i686-w64-mingw32 \
-	    --with-boost=$LIB32/Boost \
-	    --with-gsl=$LIB32/Gsl \
-	    --with-matio=$LIB32/matIO \
-	    --with-slicot=$LIB32/Slicot/without-underscore \
-	    --with-matlab=$LIB32/matlab/R2008b \
-	    MATLAB_VERSION=R2008b \
-	    MEXEXT=mexw32 \
-	    PACKAGE_VERSION=$VERSION \
-	    PACKAGE_STRING="dynare $VERSION"
-make clean
-make -j$NTHREADS all
-cd $THIS_BUILD_DIRECTORY
-i686-w64-mingw32-strip mex/matlab/*.mexw32
-mkdir -p mex/matlab/win32-7.5-8.6
-mv mex/matlab/*.mexw32 mex/matlab/win32-7.5-8.6
+# Go to ROOT_DIRECTORY
+cd $ROOT_DIRECTORY
 
-# Create Windows 64-bit DLL binaries for MATLAB R2008b
-cd mex/build/matlab
-./configure --host=x86_64-w64-mingw32 \
-	    --with-boost=$LIB64/Boost \
-	    --with-gsl=$LIB64/Gsl \
-	    --with-matio=$LIB64/matIO \
-	    --with-slicot=$LIB64/Slicot \
-	    --with-matlab=$LIB64/matlab/R2008b \
-	    MATLAB_VERSION=R2008b \
-	    MEXEXT=mexw64 \
-	    PACKAGE_VERSION=$VERSION \
-	    PACKAGE_STRING="dynare $VERSION"
-make clean
-make -j$NTHREADS all
-cd $THIS_BUILD_DIRECTORY
-x86_64-w64-mingw32-strip mex/matlab/*.mexw64
-mkdir -p mex/matlab/win64-7.5-7.7
-mv mex/matlab/*.mexw64 mex/matlab/win64-7.5-7.7
+# Create TMP folder
+mkdir -p tmp
+rm -rf $ROOT_DIRECTORY/tmp/*
+TMP_DIRECTORY=$ROOT_DIRECTORY/tmp
 
-# Create Windows 64-bit DLL binaries for MATLAB R2008b
-cd mex/build/matlab
-./configure --host=x86_64-w64-mingw32 \
-	    --with-boost=$LIB64/Boost \
-	    --with-gsl=$LIB64/Gsl \
-	    --with-matio=$LIB64/matIO \
-	    --with-slicot=$LIB64/Slicot \
-	    --with-matlab=$LIB64/matlab/R2009a \
-	    MATLAB_VERSION=R2009a \
-	    MEXEXT=mexw64 \
-	    PACKAGE_VERSION=$VERSION \
-	    PACKAGE_STRING="dynare $VERSION"
-make clean
-make -j$NTHREADS all
-cd $THIS_BUILD_DIRECTORY
-x86_64-w64-mingw32-strip mex/matlab/*.mexw64
-mkdir -p mex/matlab/win64-7.8-9.1
-mv mex/matlab/*.mexw64 mex/matlab/win64-7.8-9.1
+# Some variables and functions need to be available in subshells.
+export TMP_DIRECTORY
+export THIS_BUILD_DIRECTORY
+export ROOT_DIRECTORY
+export BASENAME 
+export LIB32
+export LIB64
+export VERSION
+export NTHREADS
+export -f movedir
+export -f build_windows_matlab_mex_32
+export -f build_windows_matlab_mex_64_a
+export -f build_windows_matlab_mex_64_b
+export -f build_windows_octave_mex_32
 
-# Create Windows DLL binaries for Octave/MinGW
-cd mex/build/octave
-./configure --host=i686-w64-mingw32 MKOCTFILE=$LIB32/mkoctfile --with-boost=$LIB32/Boost --with-gsl=$LIB32/Gsl --with-matio=$LIB32/matIO --with-slicot=$LIB32/Slicot/with-underscore PACKAGE_VERSION=$VERSION PACKAGE_STRING="dynare $VERSION"
-make clean
-make -j$NTHREADS all
-cd $THIS_BUILD_DIRECTORY
-i686-w64-mingw32-strip mex/octave/*.mex mex/octave/*.oct
+# Build all the mex files (parallel).
+parallel --progress ::: build_windows_matlab_mex_32 build_windows_matlab_mex_64_a build_windows_matlab_mex_64_b build_windows_octave_mex_32
 
 # Create Windows snapshot
-cd windows
+cd $THIS_BUILD_DIRECTORY/windows
 makensis dynare.nsi
