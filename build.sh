@@ -42,7 +42,7 @@ then
 fi
 
 BASENAME=dynare-$VERSION
-__BASENAME__=dynare-$SHORT_SHA
+__BASENAME__=dynare-$GIT_BRANCH-$SHORT_SHA
 
 # Get current directory
 ROOT_DIRECTORY=`pwd`
