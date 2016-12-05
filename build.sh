@@ -167,6 +167,11 @@ rm -f mex/matlab/*.mexw32 mex/matlab/*.mexw64 mex/matlab/*.dll mex/octave/*.mex
 # Go to ROOT_DIRECTORY
 cd $ROOT_DIRECTORY
 
+# Reset the number of threads. The mex files for matlab/octave (32bits and 64bits) will be built
+# in parallel, so we need to account for the number of tasks and lower the value of NTHREADS.
+NTASKS=4
+NTHREADS=$(( $NTHREADS/$NTASKS ))
+
 # Create TMP folder
 mkdir -p tmp
 rm -rf $ROOT_DIRECTORY/tmp/*
