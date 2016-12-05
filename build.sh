@@ -188,7 +188,7 @@ export -f build_windows_matlab_mex_64_b
 export -f build_windows_octave_mex_32
 
 # Build all the mex files (parallel).
-parallel --progress ::: build_windows_matlab_mex_32 build_windows_matlab_mex_64_a build_windows_matlab_mex_64_b build_windows_octave_mex_32
+parallel ::: build_windows_matlab_mex_32 build_windows_matlab_mex_64_a build_windows_matlab_mex_64_b build_windows_octave_mex_32
 
 # Create Windows snapshot
 cd $THIS_BUILD_DIRECTORY/windows
