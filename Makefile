@@ -1,9 +1,13 @@
-.PHONY: build-libs clean-libs
+.PHONY: libs build clean-libs
 
-build-libs:
-	make -C libs build
-	make -C libs octave-libs
-	make -C libs install-matlab-files
+NTHREADS=$(shell echo `nproc --all`)
+
+all: build
+
+libs:
+	make -C libs -j$(NTHREADS) build
+	make -C libs -j$(NTHREADS) octave-libs
+	make -C libs -j$(NTHREADS) install-matlab-files
 
 clean-libs:
 	make -C libs clean-all
