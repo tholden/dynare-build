@@ -19,3 +19,9 @@ signature/osslsigncode:
 
 clean-osslsigncode:
 	rm -rf signature/*
+
+dynare-object-signing.p12.gpg:
+	wget http://www.dynare.org/dynare-build/dynare-object-signing.p12.gpg
+
+dynare-object-signing.p12: dynare-object-signing.p12.gpg
+	./dynare-object-signing.p12.sh
