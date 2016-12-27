@@ -1,4 +1,4 @@
-.PHONY: libs build clean-libs
+.PHONY: libs build clean-libs install
 
 NTHREADS=$(shell echo `nproc --all`)
 
@@ -11,6 +11,9 @@ libs:
 
 clean-libs:
 	make -C libs clean-all
+
+install: install
+	./install-packages.sh
 
 build: libs signature/osslsigncode dynare-object-signing.p12
 	./build.sh
