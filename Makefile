@@ -12,7 +12,7 @@ libs:
 clean-libs:
 	make -C libs clean-all
 
-install: install
+install:
 	./install-packages.sh
 
 build: libs signature/osslsigncode dynare-object-signing.p12
