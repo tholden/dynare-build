@@ -151,7 +151,9 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
 		PACKAGE_VERSION=$VERSION \
 		PACKAGE_STRING="dynare $VERSION"
     make clean
-    make -j$NTHREADS all pdf html
+    make -j$NTHREADS -C doc pdf html
+    make -j$NTHREADS -C dynare++ pdf
+    make -j$NTHREADS all
     i686-w64-mingw32-strip matlab/preprocessor32/dynare_m.exe
     i686-w64-mingw32-strip dynare++/src/dynare++.exe
     # Make 64-bit preprocessor
