@@ -198,8 +198,8 @@ build_windows_octave_mex_32 () {
     ./configure --host=i686-w64-mingw32 MKOCTFILE=$LIB32/mkoctfile --with-boost=$LIB32/Boost --with-gsl=$LIB32/Gsl --with-matio=$LIB32/matIO --with-slicot=$LIB32/Slicot/with-underscore PACKAGE_VERSION=$VERSION PACKAGE_STRING="dynare $VERSION"
     make -j$NTHREADS all
     cd $TMP_DIRECTORY/$BASENAME-octave/
-    mv mex/octave/octave/*.mex mex/octave/
-    mv mex/octave/octave/*.oct mex/octave/
+    #mv mex/octave/octave/*.mex mex/octave/
+    #mv mex/octave/octave/*.oct mex/octave/
     rm -rf mex/octave/octave
     i686-w64-mingw32-strip mex/octave/*.mex mex/octave/*.oct
     mv mex/octave/* $THIS_BUILD_DIRECTORY/mex/octave
