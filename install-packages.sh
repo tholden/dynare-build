@@ -1,6 +1,7 @@
 #!/bin/bash
 
-PACKAGES=$(cat requirements.txt)
+PACKAGES=$(cat libs/requirements.txt)
+PACKAGES="$PACKAGES $(cat requirements.txt)"
 
 if [ $EUID -ne 0  ]; then
     sudo apt-get install $PACKAGES
