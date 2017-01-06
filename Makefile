@@ -12,6 +12,18 @@ libs:
 clean-libs:
 	make -C libs clean-all
 
+clean:
+	rm -f win/*
+	rm -f tar/*
+	rm -rf builds/*
+	rm -rf git/*
+	rm -rf git/*
+	rm -rf signature/source
+	rm -f dynare-object-signing.p12.gpg
+	rm -f dynare-object-signing.p12
+
+cleanall: clean-libs clean
+
 install:
 	./install-packages.sh
 
