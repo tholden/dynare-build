@@ -30,7 +30,7 @@ cleanall: clean-libs clean
 install:
 	./install-packages.sh
 
-build: libs signature/osslsigncode dynare-object-signing.p12 keys/snapshot-manager_rsa.pub
+build: libs signature/osslsigncode dynare-object-signing.p12 keys/snapshot-manager_rsa.pub m2html/Contents.m
 	./build.sh
 
 signature/osslsigncode:
@@ -57,3 +57,9 @@ snapshot-manager-key.tar: snapshot-manager-key.tar.gpg
 keys/snapshot-manager_rsa.pub: snapshot-manager-key.tar
 	mkdir -p keys
 	tar -xvf snapshot-manager-key.tar -C keys
+
+m2html.zip:
+	wget http://www.artefact.tk/software/matlab/m2html/m2html.zip
+
+m2html/Contents.m: m2html.zip
+	unzip m2html
