@@ -3,3 +3,6 @@ configuration.inc
 impossible-to-sign-dynare
 dynare-object-signing.p12
 dynare-object-signing.p12.gpg
+snapshot-manager-key.tar
+snapshot-manager-key.tar.gpg
+keys/*

@@ -21,13 +21,16 @@ clean:
 	rm -rf signature/source
 	rm -f dynare-object-signing.p12.gpg
 	rm -f dynare-object-signing.p12
+	rm -f snapshot-manager-key.tar.gpg
+	rm -f snapshot-manager-key.tar
+	rm -rf keys
 
 cleanall: clean-libs clean
 
 install:
 	./install-packages.sh
 
-build: libs signature/osslsigncode dynare-object-signing.p12
+build: libs signature/osslsigncode dynare-object-signing.p12 keys/snapshot-manager_rsa.pub
 	./build.sh
 
 signature/osslsigncode:
@@ -44,3 +47,13 @@ dynare-object-signing.p12.gpg:
 
 dynare-object-signing.p12: dynare-object-signing.p12.gpg
 	./dynare-object-signing.p12.sh
+
+snapshot-manager-key.tar.gpg:
+	wget http://www.dynare.org/dynare-build/snapshot-manager-key.tar.gpg
+
+snapshot-manager-key.tar: snapshot-manager-key.tar.gpg
+	./snapshot-manager-key.tar.sh
+
+keys/snapshot-manager_rsa.pub: snapshot-manager-key.tar
+	mkdir -p keys
+	tar -xvf snapshot-manager-key.tar -C keys
