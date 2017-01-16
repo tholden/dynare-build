@@ -287,7 +287,7 @@ if [ -v PUSH_SNAPSHOT_EXE -a $PUSH_SNAPSHOT_EXE -eq 1 ]; then
     fi
 fi
 
-if [ -v PUSH_SNAPSHOT_ZIP -a $PUSH_SNAPSHOT_ZIP -eq 1 ]
+if [ -v PUSH_SNAPSHOT_ZIP -a $PUSH_SNAPSHOT_ZIP -eq 1 ]; then
    if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH ]; then
        rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/zip/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/windows-zip/
    else
