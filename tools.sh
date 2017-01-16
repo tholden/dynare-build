@@ -198,11 +198,25 @@ build_windows_octave_mex_32 () {
     ./configure --host=i686-w64-mingw32 MKOCTFILE=$LIB32/mkoctfile --with-boost=$LIB32/Boost --with-gsl=$LIB32/Gsl --with-matio=$LIB32/matIO --with-slicot=$LIB32/Slicot/with-underscore PACKAGE_VERSION=$VERSION PACKAGE_STRING="dynare $VERSION"
     make -j$NTHREADS all
     cd $TMP_DIRECTORY/$BASENAME-octave/
-    #mv mex/octave/octave/*.mex mex/octave/
-    #mv mex/octave/octave/*.oct mex/octave/
     rm -rf mex/octave/octave
     i686-w64-mingw32-strip mex/octave/*.mex mex/octave/*.oct
     mv mex/octave/* $THIS_BUILD_DIRECTORY/mex/octave
     cd $ROOT_DIRECTORY
     rm -rf $TMP_DIRECTORY/$BASENAME-octave
+}
+
+build_internal_documentation () {
+    ./configure --enable-org-export --disable-octave --disable-matlab
+    make html
+    rm -rf $ROOT_DIRECTORY/dynare-internals/*
+    mv doc/internals/dynare-internals.html $ROOT_DIRECTORY/dynare-internals
+}
+
+build_m2html_documentation () {
+    cd mex/build/matlab
+    ./configure --with-matlab=$MATLAB_PATH MATLAB_VERSION=$MATLAB_VERS --with-m2html=$ROOT_DIRECTORY/m2html
+    make html
+    cd ../../..
+    rm -rf $ROOT_DIRECTORY/dynare-matlab-m2html
+    mv doc/m2html $ROOT_DIRECTORY/dynare-matlab-m2html
 }
