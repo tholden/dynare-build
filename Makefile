@@ -62,4 +62,6 @@ m2html.zip:
 	wget http://www.artefact.tk/software/matlab/m2html/m2html.zip
 
 m2html/Contents.m: m2html.zip
+	mkdir -p m2html
 	unzip m2html
+	touch m2html/Contents.m
