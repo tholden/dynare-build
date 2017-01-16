@@ -208,8 +208,9 @@ build_windows_octave_mex_32 () {
 build_internal_documentation () {
     ./configure --enable-org-export --disable-octave --disable-matlab
     make html
-    rm -rf $ROOT_DIRECTORY/dynare-internals/*
-    mv doc/internals/dynare-internals.html $ROOT_DIRECTORY/dynare-internals
+    rm -rf $ROOT_DIRECTORY/dynare-internals
+    mkdir -p $ROOT_DIRECTORY/dynare-internals
+    mv doc/internals/dynare-internals.html $ROOT_DIRECTORY/dynare-internals/index.html
 }
 
 build_m2html_documentation () {
