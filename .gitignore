@@ -8,3 +8,5 @@ snapshot-manager-key.tar.gpg
 keys/*
 m2html.zip
 m2html/*
+dynare-internals/*
+dynare-matlab-m2html/*
