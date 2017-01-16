@@ -1,3 +1,36 @@
+# ## ----------------
+# ## Unstable version
+# ## ----------------
+
 GIT_REMOTE=https://github.com/DynareTeam/dynare.git
 GIT_BRANCH=master
 VERSION=
+
+## ------
+## MATLAB
+## ------
+
+MATLAB_PATH=/usr/local/MATLAB/R2016a
+MATLAB_VERS=2016a
+
+## -------------
+## BUILD OPTIONS
+## -------------
+
+N_SNAPSHOTS_TO_KEEP=10
+
+BUILD_INTERNAL_DOC=0
+
+PUSH_INTERNAL_DOC=0
+PUSH_SNAPSHOT_SOURCE=0
+PUSH_SNAPSHOT_ZIP=0
+PUSH_SNAPSHOT_EXE=0
+
+
+## --------------
+## REMOTE OPTIONS
+## --------------
+
+REMOTE_SERVER=your-server.org
+REMOTE_USER=toto
+REMOTE_PATH=/srv/titi/tat/

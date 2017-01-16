@@ -23,9 +23,12 @@ then
     . ./configuration.inc
 else
     tput setaf 1; echo "I did not find any configuration file! Use defaults"
+    # Set Dynare sources
     GIT_REMOTE=https://github.com/DynareTeam/dynare.git
     GIT_BRANCH=master
     VERSION=
+    # Set the number of snapshots to be kept on the server.
+    N_SNAPSHOTS_TO_KEEP=5
 fi
 
 # Set Date
@@ -55,7 +58,8 @@ LIB64=$ROOT_DIRECTORY/libs/lib64
 GITREPO_DIRECTORY=$ROOT_DIRECTORY/git
 GITWORK_DIRECTORY=$GITREPO_DIRECTORY/$LAST_HASH
 SOURCES_DIRECTORY=$ROOT_DIRECTORY/tar
-WINDOWS_DIRECTORY=$ROOT_DIRECTORY/win
+WINDOWS_EXE_DIRECTORY=$ROOT_DIRECTORY/win
+WINDOWS_ZIP_DIRECTORY=$ROOT_DIRECTORY/zip
 BUILDS_DIRECTORY=$ROOT_DIRECTORY/builds
 THIS_BUILD_DIRECTORY=$BUILDS_DIRECTORY/$BASENAME
 
@@ -71,8 +75,8 @@ BUILD_WINDOWS_ZIP=1
 # Test if there is something new on the remote.
 if [ -d "$GITWORK_DIRECTORY" ]; then
     if [ -f "$SOURCES_DIRECTORY/$TARBALL_NAME"  ]; then
-	if [ -f "$WINDOWS_DIRECTORY/$BASENAME-win.exe" ]; then
-	    if [ -f  "$WINDOWS_DIRECTORY/$BASENAME-win.zip" ]; then
+	if [ -f "$WINDOWS_EXE_DIRECTORY/$BASENAME-win.exe" ]; then
+	    if [ -f  "$WINDOWS_ZIP_DIRECTORY/$BASENAME-win.zip" ]; then
 		echo "Dynare ($LAST_HASH) has already been compiled!"
 		BUILD_WINDOWS_ZIP=0
 	    fi
@@ -93,13 +97,6 @@ fi
 if [ $CLONE_REMOTE_REPOSITORY -eq 1 ]; then
     git clone --recursive --depth 1 --branch $GIT_BRANCH $GIT_REMOTE $GITWORK_DIRECTORY
 fi
-
-# Clean build directories
-delete_oldest_folders $GITREPO_DIRECTORY 10
-delete_oldest_folders $BUILDS_DIRECTORY 10
-delete_oldest_files_with_given_extension $SOURCES_DIRECTORY tar.xz 10
-delete_oldest_files_with_given_extension $WINDOWS_DIRECTORY exe 10
-delete_oldest_files_with_given_extension $WINDOWS_DIRECTORY zip 10
 
 if [ $MAKE_SOURCE_TARBALL -eq 1 ]; then
     # Go into build directory
@@ -244,6 +241,42 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     cp -p dynare++/kord/kord.pdf $ZIPDIR/doc/dynare++
     cd $ROOT_DIRECTORY
     zip -r dynare-$VERSION-win.zip $ZIPDIR
-    mv dynare-$VERSION-win.zip $ROOT_DIRECTORY/win
+    mv dynare-$VERSION-win.zip $ROOT_DIRECTORY/zip
     rm -rf $ZIPDIR
+fi
+
+if [ -v BUILD_INTERNAL_DOC -a $BUILD_INTERNAL_DOC -eq 1 ]; then
+    # Build internal documentation (org-mode and m2html)
+    cd $THIS_BUILD_DIRECTORY
+    build_internal_documentation
+    build_m2html_documentation
+    if [ -v PUSH_INTERNAL_DOC -a $PUSH_INTERNAL_DOC -eq 1 ]; then
+	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH ]; then
+	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/dynare-matlab-m2html $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
+	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/dynare-internals $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
+	else
+	    echo "Could not push internal documentation!"
+	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
+	fi
+    fi
+fi
+
+# Clean build and snapshot directories
+delete_oldest_folders $GITREPO_DIRECTORY $N_SNAPSHOTS_TO_KEEP
+delete_oldest_folders $BUILDS_DIRECTORY $N_SNAPSHOTS_TO_KEEP
+delete_oldest_files_with_given_extension $SOURCES_DIRECTORY tar.xz $N_SNAPSHOTS_TO_KEEP
+delete_oldest_files_with_given_extension $WINDOWS_EXE_DIRECTORY exe $N_SNAPSHOTS_TO_KEEP
+delete_oldest_files_with_given_extension $WINDOWS_ZIP_DIRECTORY zip $N_SNAPSHOTS_TO_KEEP
+
+# Push snapshot on server
+if [ -v PUSH_SNAPSHOT_SRC -a $PUSH_SNAPSHOT_SRC -eq 1 ]
+   rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/tar/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/source/
+fi
+
+if [ -v PUSH_SNAPSHOT_EXE -a $PUSH_SNAPSHOT_EXE -eq 1 ]
+   rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/win/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/windows/
+fi
+
+if [ -v PUSH_SNAPSHOT_ZIP -a $PUSH_SNAPSHOT_ZIP -eq 1 ]
+   rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/zip/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/windows-zip/
 fi
