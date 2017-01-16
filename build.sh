@@ -269,14 +269,29 @@ delete_oldest_files_with_given_extension $WINDOWS_EXE_DIRECTORY exe $N_SNAPSHOTS
 delete_oldest_files_with_given_extension $WINDOWS_ZIP_DIRECTORY zip $N_SNAPSHOTS_TO_KEEP
 
 # Push snapshot on server
-if [ -v PUSH_SNAPSHOT_SRC -a $PUSH_SNAPSHOT_SRC -eq 1 ]
-   rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/tar/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/source/
+if [ -v PUSH_SNAPSHOT_SRC -a $PUSH_SNAPSHOT_SRC -eq 1 ]; then
+    if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH ]; then
+	rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/tar/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/source/
+    else
+	echo "Could not push source tarball!"
+	echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
+    fi
 fi
 
-if [ -v PUSH_SNAPSHOT_EXE -a $PUSH_SNAPSHOT_EXE -eq 1 ]
-   rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/win/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/windows/
+if [ -v PUSH_SNAPSHOT_EXE -a $PUSH_SNAPSHOT_EXE -eq 1 ]; then
+    if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH ]; then
+	rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/win/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/windows/
+    else
+	echo "Could not push windows installer!"
+	echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
+    fi
 fi
 
 if [ -v PUSH_SNAPSHOT_ZIP -a $PUSH_SNAPSHOT_ZIP -eq 1 ]
-   rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/zip/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/windows-zip/
+   if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH ]; then
+       rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/zip/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/windows-zip/
+   else
+       echo "Could not push windows zip archive!"
+       echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
+   fi
 fi
