@@ -1,8 +1,28 @@
 #!/bin/bash
 
-# Produces Dynare snapshot (tarball and windows installer).
-
-# (C) DynareTeam 2016
+# Produces Dynare snapshot (source tarball, windows installer and zip archive for windows).
+#
+# The binaries are cross compiled for windows (32/64bits), octave 4.2.0 and matlab (all
+# versions since R2007b). The build chain has been tested on debian Jessie.
+#
+# (C) DynareTeam 2017
+#
+# This file is part of dynare-build project. Sources are available at:
+#
+#     https://gitlab.com/DynareTeam/dynare-build.git
+#
+# Dynare is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Dynare is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
 # Exit on first error
 set -ex
