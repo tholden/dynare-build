@@ -7,6 +7,10 @@
 # Exit on first error
 set -ex
 
+# Set root directory
+THISSCRIPT=$(readlink -f $0)
+ROOT_DIRECTORY=`dirname $THISSCRIPT`
+
 # Set options.
 FORCE_REWRITE=0
 
@@ -14,13 +18,13 @@ FORCE_REWRITE=0
 NTHREADS=`nproc --all`
 
 # Load shell functions
-. ./tools.sh
+. $ROOT_DIRECTORY/tools.sh
 
 # Load the configuration file
-if [ -f "configuration.inc" ]
+if [ -f "$ROOT_DIRECTORY/configuration.inc" ]
 then
     echo "Found configuration file!"
-    . ./configuration.inc
+    . $ROOT_DIRECTORY/configuration.inc
 else
     tput setaf 1; echo "I did not find any configuration file! Use defaults"
     # Set Dynare sources
@@ -46,9 +50,6 @@ fi
 
 BASENAME=dynare-$VERSION
 __BASENAME__=dynare-$GIT_BRANCH-$SHORT_SHA
-
-# Get current directory
-ROOT_DIRECTORY=`pwd`
 
 # Set directories for libraries
 LIB32=$ROOT_DIRECTORY/libs/lib32
