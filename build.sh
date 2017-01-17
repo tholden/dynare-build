@@ -154,10 +154,10 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     fi
 fi
 
-# Go to the build directory
-cd $THIS_BUILD_DIRECTORY
 
 if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
+    # Go to the build directory
+    cd $THIS_BUILD_DIRECTORY
     # Create Windows binaries of preprocessor (32bit version), Dynare++ and documentation
     ./configure --host=i686-w64-mingw32 \
 		--with-boost=$LIB32/Boost \
@@ -228,6 +228,8 @@ fi
 
 # Create .zip file (for those that are not allowed to download/execute the installer)
 if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
+    # Go to the build directory
+    cd $THIS_BUILD_DIRECTORY
     ZIPDIR=$ROOT_DIRECTORY/$VERSION
     mkdir -p $ZIPDIR
     cp -p NEWS $ZIPDIR
