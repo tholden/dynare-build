@@ -37,6 +37,7 @@ clean:
 	rm -rf builds/*
 	rm -rf git/*
 	rm -rf git/*
+	rm -rf zip/*
 	rm -rf signature/source
 	rm -f dynare-object-signing.p12.gpg
 	rm -f dynare-object-signing.p12
