@@ -32,7 +32,7 @@ THISSCRIPT=$(readlink -f $0)
 ROOT_DIRECTORY=`dirname $THISSCRIPT`
 
 # Set options.
-FORCE_REWRITE=0
+FORCE_BUILD=0
 
 # Set the number of threads
 NTHREADS=`nproc --all`
@@ -143,7 +143,7 @@ fi
 # Extract tarball in BUILDS_DIRECTORY
 if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     if [ -d $THIS_BUILD_DIRECTORY ]; then
-	if [ $FORCE_REWRITE -eq 1 ]; then
+	if [ $FORCE_BUILD -eq 1 ]; then
 	    rm -rf $THIS_BUILD_DIRECTORY
 	    cd $SOURCES_DIRECTORY
 	    tar xavf $TARBALL_NAME -C $BUILDS_DIRECTORY/
