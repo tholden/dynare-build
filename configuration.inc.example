@@ -31,6 +31,7 @@ PUSH_SNAPSHOT_EXE=0
 ## REMOTE OPTIONS
 ## --------------
 
+REMOTE_SNAPSHOT_NAME=snapshot
 REMOTE_SERVER=your-server.org
 REMOTE_USER=toto
 REMOTE_PATH=/srv/titi/tat/

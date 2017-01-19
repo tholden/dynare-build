@@ -294,8 +294,8 @@ delete_oldest_files_with_given_extension $WINDOWS_ZIP_DIRECTORY zip $N_SNAPSHOTS
 # Push snapshot on server
 if [ -v PUSH_SNAPSHOT_SRC ]; then
     if [ $PUSH_SNAPSHOT_SRC -eq 1 ]; then
-	if [ -v REMOTE_USER ] &&  [ -v REMOTE_SERVER ] && [ -v REMOTE_PATH ]; then
-	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/tar/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/source/
+	if [ -v REMOTE_USER ] &&  [ -v REMOTE_SERVER ] && [ -v REMOTE_PATH ] && [ -v REMOTE_SNAPSHOT_NAME ]; then
+	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/tar/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/source/
 	else
 	    echo "Could not push source tarball!"
 	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
@@ -305,8 +305,8 @@ fi
 
 if [ -v PUSH_SNAPSHOT_EXE ]; then
     if [ $PUSH_SNAPSHOT_EXE -eq 1 ]; then
-	if [ -v REMOTE_USER ] && [ -v REMOTE_SERVER ] && [ -v REMOTE_PATH ]; then
-	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/win/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/windows/
+	if [ -v REMOTE_USER ] && [ -v REMOTE_SERVER ] && [ -v REMOTE_PATH ] && [ -v REMOTE_SNAPSHOT_NAME ]; then
+	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/win/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/windows/
 	else
 	    echo "Could not push windows installer!"
 	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
@@ -316,8 +316,8 @@ fi
 
 if [ -v PUSH_SNAPSHOT_ZIP ]; then
     if [ $PUSH_SNAPSHOT_ZIP -eq 1 ]; then
-	if [ -v REMOTE_USER ] && [ -v REMOTE_SERVER ] && [ -v REMOTE_PATH ]; then
-	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/zip/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/snapshot/windows-zip/
+	if [ -v REMOTE_USER ] && [ -v REMOTE_SERVER ] && [ -v REMOTE_PATH ] && [ -v REMOTE_SNAPSHOT_NAME ]; then
+	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/zip/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/windows-zip/
 	else
 	    echo "Could not push windows zip archive!"
 	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
