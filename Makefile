@@ -31,19 +31,22 @@ libs:
 clean-libs:
 	make -C libs clean-all
 
-clean:
-	rm -f win/*
-	rm -f tar/*
-	rm -rf builds/*
-	rm -rf git/*
-	rm -rf git/*
-	rm -rf zip/*
+clean: build-clean
 	rm -rf signature/source
 	rm -f dynare-object-signing.p12.gpg
 	rm -f dynare-object-signing.p12
 	rm -f snapshot-manager-key.tar.gpg
 	rm -f snapshot-manager-key.tar
 	rm -rf keys
+
+build-clean:
+	rm -f win/*
+	rm -f tar/*
+	rm -rf builds/*
+	rm -rf git/*
+	rm -rf git/*
+	rm -rf zip/*
+
 
 cleanall: clean-libs clean
 
