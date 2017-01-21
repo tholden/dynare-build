@@ -202,6 +202,7 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     rm -rf $ROOT_DIRECTORY/tmp/*
     TMP_DIRECTORY=$ROOT_DIRECTORY/tmp
     # Some variables and functions need to be available in subshells.
+    parallel --record-env
     export TMP_DIRECTORY
     export THIS_BUILD_DIRECTORY
     export ROOT_DIRECTORY
@@ -216,7 +217,7 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     export -f build_windows_matlab_mex_64_b
     export -f build_windows_octave_mex_32
     # Build all the mex files (parallel).
-    parallel ::: build_windows_matlab_mex_32 build_windows_matlab_mex_64_a build_windows_matlab_mex_64_b build_windows_octave_mex_32
+    parallel --env _ ::: build_windows_matlab_mex_32 build_windows_matlab_mex_64_a build_windows_matlab_mex_64_b build_windows_octave_mex_32
     # Create Windows installer
     cd $THIS_BUILD_DIRECTORY/windows
     makensis dynare.nsi
