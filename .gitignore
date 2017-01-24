@@ -10,3 +10,5 @@ m2html.zip
 m2html/*
 dynare-internals/*
 dynare-matlab-m2html/*
+lastlog.txt
+run-snapshot-build.sh
