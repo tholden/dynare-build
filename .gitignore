@@ -6,6 +6,7 @@ dynare-object-signing.p12.gpg
 snapshot-manager-key.tar
 snapshot-manager-key.tar.gpg
 keys/*
+git/*
 m2html.zip
 m2html/*
 dynare-internals/*
