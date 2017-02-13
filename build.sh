@@ -224,7 +224,8 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     $ROOT_DIRECTORY/signature/osslsigncode sign -pkcs12 $ROOT_DIRECTORY/dynare-object-signing.p12 -n Dynare -i http://www.dynare.org -in dynare-$VERSION-win.exe -out dynare-$VERSION-win-signed.exe
     rm dynare-$VERSION-win.exe
     mv dynare-$VERSION-win-signed.exe $ROOT_DIRECTORY/win/dynare-$VERSION-win.exe
-    ln -s $ROOT_DIRECTORY/win/dynare-$VERSION-win.exe $ROOT_DIRECTORY/win/dynare-latest-win.exe
+    cd $ROOT_DIRECTORY/win
+    ln -s dynare-$VERSION-win.exe dynare-latest-win.exe
     cd $THIS_BUILD_DIRECTORY
 fi
 
@@ -267,7 +268,8 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     cd $ROOT_DIRECTORY
     zip -r dynare-$VERSION-win.zip $ZIPDIR
     mv dynare-$VERSION-win.zip $ROOT_DIRECTORY/zip
-    ln -s $ROOT_DIRECTORY/zip/dynare-$VERSION-win.zip $ROOT_DIRECTORY/zip/dynare-latest-win.zip
+    cd $ROOT_DIRECTORY/zip
+    ln -s dynare-$VERSION-win.zip dynare-latest-win.zip
     rm -rf $ZIPDIR
 fi
 
