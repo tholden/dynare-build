@@ -233,6 +233,9 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     # Go to the build directory
     cd $THIS_BUILD_DIRECTORY
     ZIPDIR=$ROOT_DIRECTORY/$VERSION
+    if [ ! -d $ZIPDIR ]; then
+	rm $ZIPDIR
+    fi
     mkdir -p $ZIPDIR
     cp -p NEWS $ZIPDIR
     cp -p license.txt $ZIPDIR
