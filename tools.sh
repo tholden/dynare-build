@@ -240,3 +240,12 @@ build_m2html_documentation () {
     rm -rf $ROOT_DIRECTORY/dynare-matlab-m2html
     mv doc/m2html $ROOT_DIRECTORY/dynare-matlab-m2html
 }
+
+create_checksum_files()
+{
+    FILES=`ls -I*.sig -IMD5SUMS -ISHA1SUMS -ISHA256SUMS -ISHA512SUMS`
+    md5sum $FILES > MD5SUMS
+    sha1sum $FILES > SHA1SUMS
+    sha256sum $FILES > SHA256SUMS
+    sha512sum $FILES > SHA512SUMS
+}

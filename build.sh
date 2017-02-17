@@ -297,6 +297,14 @@ delete_oldest_files_with_given_extension $SOURCES_DIRECTORY tar.xz $N_SNAPSHOTS_
 delete_oldest_files_with_given_extension $WINDOWS_EXE_DIRECTORY exe $N_SNAPSHOTS_TO_KEEP
 delete_oldest_files_with_given_extension $WINDOWS_ZIP_DIRECTORY zip $N_SNAPSHOTS_TO_KEEP
 
+# Create checksum files.
+cd $SOURCES_DIRECTORY
+create_checksum_files()
+cd $WINDOWS_EXE_DIRECTORY
+create_checksum_files()
+cd $WINDOWS_ZIP_DIRECTORY
+create_checksum_files()
+
 # Push snapshot on server
 if [ -v PUSH_SNAPSHOT_SRC ]; then
     if [ $PUSH_SNAPSHOT_SRC -eq 1 ]; then
