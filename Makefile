@@ -53,7 +53,10 @@ cleanall: clean-libs clean
 install:
 	./install-packages.sh
 
-build: libs signature/osslsigncode dynare-object-signing.p12 keys/snapshot-manager_rsa.pub m2html/Contents.m
+build:
+	./build.sh
+
+push: libs signature/osslsigncode dynare-object-signing.p12 keys/snapshot-manager_rsa.pub m2html/Contents.m
 	./build.sh
 
 signature/osslsigncode:
