@@ -318,7 +318,7 @@ fi
 if [ -v PUSH_SNAPSHOT_SRC ]; then
     if [ $PUSH_SNAPSHOT_SRC -eq 1 ]; then
 	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH -a -v REMOTE_SNAPSHOT_NAME ]; then
-	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/tar/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/source/
+	    rsync -v -r -t -e "'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'" --delete $ROOT_DIRECTORY/tar/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/source/
 	else
 	    echo "Could not push source tarball!"
 	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
@@ -329,7 +329,7 @@ fi
 if [ -v PUSH_SNAPSHOT_EXE ]; then
     if [ $PUSH_SNAPSHOT_EXE -eq 1 ]; then
 	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH -a -v REMOTE_SNAPSHOT_NAME ]; then
-	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/win/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/windows/
+	    rsync -v -r -t -e "'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'" --delete $ROOT_DIRECTORY/win/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/windows/
 	else
 	    echo "Could not push windows installer!"
 	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
@@ -340,7 +340,7 @@ fi
 if [ -v PUSH_SNAPSHOT_ZIP ]; then
     if [ $PUSH_SNAPSHOT_ZIP -eq 1 ]; then
 	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH -a -v REMOTE_SNAPSHOT_NAME ]; then
-	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/zip/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/windows-zip/
+	    rsync -v -r -t -e "'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'" --delete $ROOT_DIRECTORY/zip/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/windows-zip/
 	else
 	    echo "Could not push windows zip archive!"
 	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
