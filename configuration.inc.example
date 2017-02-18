@@ -26,6 +26,11 @@ PUSH_SNAPSHOT_SOURCE=0
 PUSH_SNAPSHOT_ZIP=0
 PUSH_SNAPSHOT_EXE=0
 
+## ---------
+## SIGNATURE
+## ---------
+
+SIGN_DYNARE=0
 
 ## --------------
 ## REMOTE OPTIONS
