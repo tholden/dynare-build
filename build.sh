@@ -309,12 +309,9 @@ delete_oldest_files_with_given_extension $WINDOWS_EXE_DIRECTORY exe $N_SNAPSHOTS
 delete_oldest_files_with_given_extension $WINDOWS_ZIP_DIRECTORY zip $N_SNAPSHOTS_TO_KEEP
 
 # Create checksum files.
-cd $SOURCES_DIRECTORY
-create_checksum_files()
-cd $WINDOWS_EXE_DIRECTORY
-create_checksum_files()
-cd $WINDOWS_ZIP_DIRECTORY
-create_checksum_files()
+create_checksum_files $SOURCES_DIRECTORY
+create_checksum_files $WINDOWS_EXE_DIRECTORY
+create_checksum_files $WINDOWS_ZIP_DIRECTORY
 
 # Push snapshot on server
 if [ -f "$ROOT_DIRECTORY/impossible-to-push-dynare" ]; then
