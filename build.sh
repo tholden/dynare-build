@@ -301,7 +301,7 @@ create_checksum_files $WINDOWS_ZIP_DIRECTORY
 if [ -f "$ROOT_DIRECTORY/impossible-to-push-dynare" ]; then
     exit 0
 else
-    SNAPSHOT_MANAGER_KEY="'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'"
+    SNAPSHOT_MANAGER_KEY='"ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa"'
 fi
 
 if [ -v BUILD_INTERNAL_DOC -a $BUILD_INTERNAL_DOC -eq 1 ]; then
