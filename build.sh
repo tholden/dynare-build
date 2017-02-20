@@ -292,8 +292,8 @@ if [ -v BUILD_INTERNAL_DOC -a $BUILD_INTERNAL_DOC -eq 1 ]; then
     build_m2html_documentation
     if [ -v PUSH_INTERNAL_DOC -a $PUSH_INTERNAL_DOC -eq 1 ]; then
 	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH ]; then
-	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/dynare-matlab-m2html $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
-	    rsync -v -r -t -e 'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa' --delete $ROOT_DIRECTORY/dynare-internals $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
+	    rsync -v -r -t -e "'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'" --delete $ROOT_DIRECTORY/dynare-matlab-m2html $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
+	    rsync -v -r -t -e "'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'" --delete $ROOT_DIRECTORY/dynare-internals $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
 	else
 	    echo "Could not push internal documentation!"
 	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
