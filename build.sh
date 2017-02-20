@@ -88,6 +88,12 @@ THIS_BUILD_DIRECTORY=$BUILDS_DIRECTORY/$BASENAME
 # Set source TARBALL name
 TARBALL_NAME=$__BASENAME__.tar.xz
 
+# Set windows EXE installer name
+WINDOWS_EXE_NAME=$__BASENAME__-win.exe
+
+# Set windows ZIP installer name
+WINDOWS_ZIP_NAME=$__BASENAME__-win.zip
+
 # Set default values for dummy variables
 MAKE_SOURCE_TARBALL=1
 CLONE_REMOTE_REPOSITORY=1
@@ -97,8 +103,8 @@ BUILD_WINDOWS_ZIP=1
 # Test if there is something new on the remote.
 if [ -d "$GITWORK_DIRECTORY" ]; then
     if [ -f "$SOURCES_DIRECTORY/$TARBALL_NAME"  ]; then
-	if [ -f "$WINDOWS_EXE_DIRECTORY/dynare-$GIT_BRANCH-"*"-$SHORT_SHA-win.exe" ]; then
-	    if [ -f  "$WINDOWS_ZIP_DIRECTORY/dynare-$GIT_BRANCH-"*"-$SHORT_SHA-win.zip" ]; then
+	if [ -f "$WINDOWS_EXE_DIRECTORY/dynare-$GIT_BRANCH-$SHORT_SHA-win.exe" ]; then
+	    if [ -f  "$WINDOWS_ZIP_DIRECTORY/dynare-$GIT_BRANCH-$SHORT_SHA-win.zip" ]; then
 		echo "Dynare ($LAST_HASH) has already been compiled!"
 		BUILD_WINDOWS_ZIP=0
 	    fi
@@ -225,11 +231,11 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     if [ $SIGN_DYNARE -eq 1 -a ! -f "$ROOT_DIRECTORY/impossible-to-sign-dynare" ]; then
         $ROOT_DIRECTORY/signature/osslsigncode sign -pkcs12 $ROOT_DIRECTORY/dynare-object-signing.p12 -n Dynare -i http://www.dynare.org -in dynare-$VERSION-win.exe -out dynare-$VERSION-win-signed.exe
         rm dynare-$VERSION-win.exe
-        mv dynare-$VERSION-win-signed.exe $ROOT_DIRECTORY/win/dynare-$VERSION-win.exe
+        mv dynare-$VERSION-win-signed.exe $ROOT_DIRECTORY/win/$WINDOWS_EXE_NAME
     else
-	mv dynare-$VERSION-win.exe $ROOT_DIRECTORY/win/dynare-$VERSION-win.exe
+	mv dynare-$VERSION-win.exe $ROOT_DIRECTORY/win/$WINDOWS_EXE_NAME
     fi
-    ln --relative --symbolic --force $ROOT_DIRECTORY/win/dynare-$VERSION-win.exe $ROOT_DIRECTORY/win/dynare-latest-win.exe
+    ln --relative --symbolic --force $ROOT_DIRECTORY/win/$WINDOWS_EXE_NAME $ROOT_DIRECTORY/win/dynare-latest-win.exe
     cd $THIS_BUILD_DIRECTORY
 fi
 
@@ -274,8 +280,8 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     cp -p dynare++/kord/kord.pdf $ZIPDIR/doc/dynare++
     cd $ROOT_DIRECTORY
     zip -r dynare-$VERSION-win.zip $ZIPDIR
-    mv dynare-$VERSION-win.zip $ROOT_DIRECTORY/zip
-    ln --relative --symbolic --force $ROOT_DIRECTORY/zip/dynare-$VERSION-win.zip $ROOT_DIRECTORY/zip/dynare-latest-win.zip
+    mv dynare-$VERSION-win.zip $ROOT_DIRECTORY/zip/$WINDOWS_ZIP_NAME
+    ln --relative --symbolic --force $ROOT_DIRECTORY/zip/$WINDOWS_ZIP_NAME $ROOT_DIRECTORY/zip/dynare-latest-win.zip
     rm -rf $ZIPDIR
 fi
 
