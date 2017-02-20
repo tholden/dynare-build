@@ -285,22 +285,6 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     rm -rf $ZIPDIR
 fi
 
-if [ -v BUILD_INTERNAL_DOC -a $BUILD_INTERNAL_DOC -eq 1 ]; then
-    # Build internal documentation (org-mode and m2html)
-    cd $THIS_BUILD_DIRECTORY
-    build_internal_documentation
-    build_m2html_documentation
-    if [ -v PUSH_INTERNAL_DOC -a $PUSH_INTERNAL_DOC -eq 1 ]; then
-	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH ]; then
-	    rsync -v -r -t -e "'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'" --delete $ROOT_DIRECTORY/dynare-matlab-m2html $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
-	    rsync -v -r -t -e "'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'" --delete $ROOT_DIRECTORY/dynare-internals $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
-	else
-	    echo "Could not push internal documentation!"
-	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
-	fi
-    fi
-fi
-
 # Clean build and snapshot directories
 delete_oldest_folders $GITREPO_DIRECTORY $N_SNAPSHOTS_TO_KEEP
 delete_oldest_folders $BUILDS_DIRECTORY $N_SNAPSHOTS_TO_KEEP
@@ -315,13 +299,31 @@ create_checksum_files $WINDOWS_ZIP_DIRECTORY
 
 # Push snapshot on server
 if [ -f "$ROOT_DIRECTORY/impossible-to-push-dynare" ]; then
-   exit 0
+    exit 0
+else
+    SNAPSHOT_MANAGER_KEY="'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'"
+fi
+
+if [ -v BUILD_INTERNAL_DOC -a $BUILD_INTERNAL_DOC -eq 1 ]; then
+    # Build internal documentation (org-mode and m2html)
+    cd $THIS_BUILD_DIRECTORY
+    build_internal_documentation
+    build_m2html_documentation
+    if [ -v PUSH_INTERNAL_DOC -a $PUSH_INTERNAL_DOC -eq 1 ]; then
+	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH -a ! -f "$ROOT_DIRECTORY/impossible-to-push-dynare" ]; then
+	    rsync -v -r -t -e $SNAPSHOT_MANAGER_KEY --delete $ROOT_DIRECTORY/dynare-matlab-m2html $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
+	    rsync -v -r -t -e $SNAPSHOT_MANAGER_KEY --delete $ROOT_DIRECTORY/dynare-internals $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
+	else
+	    echo "Could not push internal documentation!"
+	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
+	fi
+    fi
 fi
 
 if [ -v PUSH_SNAPSHOT_SRC ]; then
     if [ $PUSH_SNAPSHOT_SRC -eq 1 ]; then
 	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH -a -v REMOTE_SNAPSHOT_NAME ]; then
-	    rsync -v -r -t -e "'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'" --delete $ROOT_DIRECTORY/tar/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/source/
+	    rsync -v -r -t -e $SNAPSHOT_MANAGER_KEY --delete $ROOT_DIRECTORY/tar/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/source/
 	else
 	    echo "Could not push source tarball!"
 	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
@@ -332,7 +334,7 @@ fi
 if [ -v PUSH_SNAPSHOT_EXE ]; then
     if [ $PUSH_SNAPSHOT_EXE -eq 1 ]; then
 	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH -a -v REMOTE_SNAPSHOT_NAME ]; then
-	    rsync -v -r -t -e "'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'" --delete $ROOT_DIRECTORY/win/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/windows/
+	    rsync -v -r -t -e $SNAPSHOT_MANAGER_KEY --delete $ROOT_DIRECTORY/win/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/windows/
 	else
 	    echo "Could not push windows installer!"
 	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
@@ -343,7 +345,7 @@ fi
 if [ -v PUSH_SNAPSHOT_ZIP ]; then
     if [ $PUSH_SNAPSHOT_ZIP -eq 1 ]; then
 	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH -a -v REMOTE_SNAPSHOT_NAME ]; then
-	    rsync -v -r -t -e "'ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa'" --delete $ROOT_DIRECTORY/zip/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/windows-zip/
+	    rsync -v -r -t -e $SNAPSHOT_MANAGER_KEY --delete $ROOT_DIRECTORY/zip/ $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH/$REMOTE_SNAPSHOT_NAME/windows-zip/
 	else
 	    echo "Could not push windows zip archive!"
 	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
