@@ -145,6 +145,7 @@ if [ $MAKE_SOURCE_TARBALL -eq 1 ]; then
     make dist
     # Move tarball
     mv $BASENAME.tar.xz $SOURCES_DIRECTORY/$TARBALL_NAME
+    ln --relative --symbolic --force $SOURCES_DIRECTORY/$TARBALL_NAME $SOURCES_DIRECTORY/dynare-latest-src.tar.xz
 fi
 
 # Extract tarball in BUILDS_DIRECTORY
