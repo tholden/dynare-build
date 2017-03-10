@@ -280,7 +280,7 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     cp -p dynare++/integ/cc/integ.pdf $ZIPDIR/doc/dynare++
     cp -p dynare++/kord/kord.pdf $ZIPDIR/doc/dynare++
     cd $ROOT_DIRECTORY
-    zip -r dynare-$VERSION-win.zip $ZIPDIR
+    zip -r dynare-$VERSION-win.zip $VERSION
     mv dynare-$VERSION-win.zip $ROOT_DIRECTORY/zip/$WINDOWS_ZIP_NAME
     ln --relative --symbolic --force $ROOT_DIRECTORY/zip/$WINDOWS_ZIP_NAME $ROOT_DIRECTORY/zip/dynare-latest-win.zip
     rm -rf $ZIPDIR
