@@ -202,9 +202,9 @@ build_windows_matlab_mex_64_b () {
     make -j$NTHREADS all
     cd $TMP_DIRECTORY/$BASENAME-matlab-win64-b/
     x86_64-w64-mingw32-strip mex/matlab/*.mexw64
-    mkdir -p mex/matlab/win64-7.8-9.1
-    mv mex/matlab/*.mexw64 mex/matlab/win64-7.8-9.1
-    movedir mex/matlab/win64-7.8-9.1 $THIS_BUILD_DIRECTORY/mex/matlab
+    mkdir -p mex/matlab/win64-7.8-9.2
+    mv mex/matlab/*.mexw64 mex/matlab/win64-7.8-9.2
+    movedir mex/matlab/win64-7.8-9.2 $THIS_BUILD_DIRECTORY/mex/matlab
     cd $ROOT_DIRECTORY
     rm -r $TMP_DIRECTORY/$BASENAME-matlab-win64-b
 }
