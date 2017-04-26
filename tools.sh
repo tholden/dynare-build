@@ -168,7 +168,7 @@ build_windows_matlab_mex_64_a () {
 		--with-boost=$LIB64/Boost \
 		--with-gsl=$LIB64/Gsl \
 		--with-matio=$LIB64/matIO \
-		--with-slicot=$LIB64/Slicot \
+		--with-slicot=$LIB64/Slicot/without-underscore \
 		--with-matlab=$LIB64/matlab/R2008b \
 		MATLAB_VERSION=R2008b \
 		MEXEXT=mexw64 \
@@ -193,7 +193,7 @@ build_windows_matlab_mex_64_b () {
 		--with-boost=$LIB64/Boost \
 		--with-gsl=$LIB64/Gsl \
 		--with-matio=$LIB64/matIO \
-		--with-slicot=$LIB64/Slicot \
+		--with-slicot=$LIB64/Slicot/without-underscore \
 		--with-matlab=$LIB64/matlab/R2009a \
 		MATLAB_VERSION=R2009a \
 		MEXEXT=mexw64 \
@@ -210,18 +210,34 @@ build_windows_matlab_mex_64_b () {
 }
 
 build_windows_octave_mex_32 () {
-    # Create Windows DLL binaries for Octave/MinGW
-    mkdir -p $TMP_DIRECTORY/$BASENAME-octave
-    cp -r $THIS_BUILD_DIRECTORY/* $TMP_DIRECTORY/$BASENAME-octave
-    cd $TMP_DIRECTORY/$BASENAME-octave/mex/build/octave
+    # Create Windows DLL binaries for Octave/MinGW (32bit)
+    mkdir -p $TMP_DIRECTORY/$BASENAME-octave-32
+    cp -r $THIS_BUILD_DIRECTORY/* $TMP_DIRECTORY/$BASENAME-octave-32
+    cd $TMP_DIRECTORY/$BASENAME-octave-32/mex/build/octave
     ./configure --host=i686-w64-mingw32 MKOCTFILE=$LIB32/mkoctfile --with-boost=$LIB32/Boost --with-gsl=$LIB32/Gsl --with-matio=$LIB32/matIO --with-slicot=$LIB32/Slicot/with-underscore PACKAGE_VERSION=$VERSION PACKAGE_STRING="dynare $VERSION"
     make -j$NTHREADS all
-    cd $TMP_DIRECTORY/$BASENAME-octave/
+    cd $TMP_DIRECTORY/$BASENAME-octave-32/
     rm -rf mex/octave/octave
     i686-w64-mingw32-strip mex/octave/*.mex mex/octave/*.oct
+    mkdir -p $THIS_BUILD_DIRECTORY/mex/octave32
+    mv mex/octave/* $THIS_BUILD_DIRECTORY/mex/octave32
+    cd $ROOT_DIRECTORY
+    rm -rf $TMP_DIRECTORY/$BASENAME-octave-32
+}
+
+build_windows_octave_mex_64 () {
+    # Create Windows DLL binaries for Octave/MinGW (64bit)
+    mkdir -p $TMP_DIRECTORY/$BASENAME-octave-64
+    cp -r $THIS_BUILD_DIRECTORY/* $TMP_DIRECTORY/$BASENAME-octave-64
+    cd $TMP_DIRECTORY/$BASENAME-octave-64/mex/build/octave
+    ./configure --host=x86_64-w64-mingw32 MKOCTFILE=$LIB64/mkoctfile --with-boost=$LIB64/Boost --with-gsl=$LIB64/Gsl --with-matio=$LIB64/matIO --with-slicot=$LIB64/Slicot/with-underscore PACKAGE_VERSION=$VERSION PACKAGE_STRING="dynare $VERSION"
+    make -j$NTHREADS all
+    cd $TMP_DIRECTORY/$BASENAME-octave-64/
+    rm -rf mex/octave/octave
+    x86_64-w64-mingw32-strip mex/octave/*.mex mex/octave/*.oct
     mv mex/octave/* $THIS_BUILD_DIRECTORY/mex/octave
     cd $ROOT_DIRECTORY
-    rm -rf $TMP_DIRECTORY/$BASENAME-octave
+    rm -rf $TMP_DIRECTORY/$BASENAME-octave-64
 }
 
 build_internal_documentation () {

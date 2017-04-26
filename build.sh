@@ -198,12 +198,12 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     mkdir matlab/preprocessor32
     mv dynare_m.exe matlab/preprocessor32/
     # Cleanup mex folders under build directory
-    rm -f mex/matlab/*.mexw32 mex/matlab/*.mexw64 mex/matlab/*.dll mex/octave/*.mex
+    rm -f mex/matlab/*.mexw32 mex/matlab/*.mexw64 mex/matlab/*.dll mex/octave/*.mex mex/octave32/*.mex
     # Go to ROOT_DIRECTORY
     cd $ROOT_DIRECTORY
     # Reset the number of threads. The mex files for matlab/octave (32bits and 64bits) will be built
     # in parallel, so we need to account for the number of tasks and lower the value of NTHREADS.
-    NTASKS=4
+    NTASKS=5
     NTHREADS=$(( $NTHREADS/$NTASKS ))
     # Create TMP folder
     mkdir -p tmp
@@ -224,8 +224,9 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     export -f build_windows_matlab_mex_64_a
     export -f build_windows_matlab_mex_64_b
     export -f build_windows_octave_mex_32
+    export -f build_windows_octave_mex_64
     # Build all the mex files (parallel).
-    parallel --env _ ::: build_windows_matlab_mex_32 build_windows_matlab_mex_64_a build_windows_matlab_mex_64_b build_windows_octave_mex_32
+    parallel --env _ ::: build_windows_matlab_mex_32 build_windows_matlab_mex_64_a build_windows_matlab_mex_64_b build_windows_octave_mex_32 build_windows_octave_mex_64
     # Create Windows installer
     cd $THIS_BUILD_DIRECTORY/windows
     makensis dynare.nsi
@@ -258,6 +259,7 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     cp -pr contrib/ms-sbvar/TZcode/MatlabFiles $ZIPDIR/contrib/ms-sbvar/TZcode
     mkdir $ZIPDIR/mex
     cp -pr mex/octave $ZIPDIR/mex
+    cp -pr mex/octave32 $ZIPDIR/mex
     cp -pr mex/matlab $ZIPDIR/mex
     cp -pr matlab $ZIPDIR
     cp -pr examples $ZIPDIR
