@@ -229,6 +229,7 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     parallel --env _ ::: build_windows_matlab_mex_32 build_windows_matlab_mex_64_a build_windows_matlab_mex_64_b build_windows_octave_mex_32 build_windows_octave_mex_64
     # Create Windows installer
     cd $THIS_BUILD_DIRECTORY/windows
+    cp -p $ROOT_DIRECTORY/libs/lib32/*.dll $THIS_BUILD_DIRECTORY/dynare++ # The windows installer also distributes the dll for dynare++
     makensis dynare.nsi
     if [ $SIGN_DYNARE -eq 1 -a ! -f "$ROOT_DIRECTORY/impossible-to-sign-dynare" ]; then
         $ROOT_DIRECTORY/signature/osslsigncode sign -pkcs12 $ROOT_DIRECTORY/dynare-object-signing.p12 -n Dynare -i http://www.dynare.org -in dynare-$VERSION-win.exe -out dynare-$VERSION-win-signed.exe
@@ -266,6 +267,7 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     cp -pr scripts $ZIPDIR
     mkdir $ZIPDIR/dynare++
     cp -p dynare++/src/dynare++.exe $ZIPDIR/dynare++
+    cp -p $ROOT_DIRECTORY/libs/lib32/*.dll $ZIPDIR/dynare++
     cp -p dynare++/extern/matlab/dynare_simul.m $ZIPDIR/dynare++
     mkdir -p $ZIPDIR/doc/dynare++
     cp -pr doc/dynare.html $ZIPDIR/doc
