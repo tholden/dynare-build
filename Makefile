@@ -27,6 +27,7 @@ libs:
 	make -C libs -j$(NTHREADS) build
 	make -C libs -j$(NTHREADS) octave-libs
 	make -C libs -j$(NTHREADS) install-matlab-files
+	make -C libs -j$(NTHREADS) dll
 
 clean-libs:
 	make -C libs clean-all
