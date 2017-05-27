@@ -137,8 +137,8 @@ BUILD_WINDOWS_ZIP=1
 # Test if there is something new on the remote.
 if [ -d "$GITWORK_DIRECTORY" ]; then
     if [ -f "$SOURCES_DIRECTORY/$TARBALL_NAME"  ]; then
-	if [ -f "$WINDOWS_EXE_DIRECTORY/dynare-$GIT_BRANCH-$SHORT_SHA-win.exe" ]; then
-	    if [ -f  "$WINDOWS_ZIP_DIRECTORY/dynare-$GIT_BRANCH-$SHORT_SHA-win.zip" ]; then
+	if [ -f "$WINDOWS_EXE_DIRECTORY/WINDOWS_EXE_NAME" ]; then
+	    if [ -f  "$WINDOWS_ZIP_DIRECTORY/WINDOWS_ZIP_NAME" ]; then
 		echo "Dynare ($LAST_HASH) has already been compiled!"
 		BUILD_WINDOWS_ZIP=0
 	    fi
