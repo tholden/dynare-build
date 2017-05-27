@@ -63,14 +63,48 @@ DATE=`date --rfc-3339=date`
 LAST_HASH=`git ls-remote $GIT_REMOTE refs/heads/$GIT_BRANCH | cut -f 1`
 SHORT_SHA=`echo $LAST_HASH | cut -c1-7`
 
-# Set basename for snapshot installer
-if [ -z "$VERSION" ]
+if [ -z "LAST_HASH" ]
 then
-    VERSION=$GIT_BRANCH-$DATE-$SHORT_SHA
+    echo "Cannot get the last commit's hash!"
+    exit 1
 fi
 
-BASENAME=dynare-$VERSION
-__BASENAME__=dynare-$GIT_BRANCH-$SHORT_SHA
+# Get Dynare version (sets value returned by matlab/dynare_version.m)
+if [ -n "DYNARE_VERSION" ]
+then
+    if [[ $DYNARE_VERSION == *"unstable"* ]]
+    then
+	# Unstable version (snapshot).
+	VERSION=$DYNARE_VERSION-$LAST_HASH
+	DYNARE_VERSION_SHORT=$DYNARE_VERSION-$SHORT_SHA
+	DYNARE_VERSION=$DYNARE_VERSION-$LAST_HASH
+    else
+	# Stable or customized version.
+	VERSION=dynare-$DYNARE_VERSION-$LAST_HASH
+	if [ -z $RELEASE ]
+	then
+	    # Not an official release (append git hash)
+	    DYNARE_VERSION_SHORT=$DYNARE_VERSION-$SHORT_SHA
+	    DYNARE_VERSION=$DYNARE_VERSION-$LAST_HASH
+	else
+	    if [ $RELEASE -eq 0 ]
+	    then
+		# Not an official version (append git hash)
+		DYNARE_VERSION_SHORT=$DYNARE_VERSION-$SHORT_SHA
+		DYNARE_VERSION=$DYNARE_VERSION-$LAST_HASH
+	    else
+		DYNARE_VERSION_SHORT=$DYNARE_VERSION
+	    fi
+	fi
+    fi
+else
+    echo "Variable DYNARE_VERSION is unknown!"
+    echo "Please, check the configuration.inc file."
+    exit 1
+fi
+
+BASENAME=$VERSION
+__BASENAME__=dynare-$DYNARE_VERSION_SHORT
 
 # Set directories for libraries
 LIB32=$ROOT_DIRECTORY/libs/lib32
@@ -83,7 +117,7 @@ SOURCES_DIRECTORY=$ROOT_DIRECTORY/tar
 WINDOWS_EXE_DIRECTORY=$ROOT_DIRECTORY/win
 WINDOWS_ZIP_DIRECTORY=$ROOT_DIRECTORY/zip
 BUILDS_DIRECTORY=$ROOT_DIRECTORY/builds
-THIS_BUILD_DIRECTORY=$BUILDS_DIRECTORY/$BASENAME
+THIS_BUILD_DIRECTORY=$BUILDS_DIRECTORY/$VERSION
 
 # Set source TARBALL name
 TARBALL_NAME=$__BASENAME__.tar.xz
@@ -128,40 +162,51 @@ fi
 
 if [ $MAKE_SOURCE_TARBALL -eq 1 ]; then
     # Go into build directory
+    echo $GITWORK_DIRECTORY
     cd $GITWORK_DIRECTORY
     # Update version number with current date and sha1 digest
-    cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$GIT_BRANCH-$DATE-$SHORT_SHA])/" > configure.ac.new
+    cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$DYNARE_VERSION])/" > configure.ac.new
     mv configure.ac.new configure.ac
+    echo $GITWORK_DIRECTORY
     cd $GITWORK_DIRECTORY/mex/build/octave
-    cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$GIT_BRANCH-$DATE-$SHORT_SHA])/" > configure.ac.new
+    cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$DYNARE_VERSION])/" > configure.ac.new
     mv configure.ac.new configure.ac
     cd $GITWORK_DIRECTORY/mex/build/matlab
-    cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$GIT_BRANCH-$DATE-$SHORT_SHA])/" > configure.ac.new
+    cat configure.ac | sed "s/AC_INIT(\[dynare\], \[.*\])/AC_INIT([dynare],\ [$DYNARE_VERSION])/" > configure.ac.new
     mv configure.ac.new configure.ac
     cd $GITWORK_DIRECTORY
     # Create snapshot source (tarball)
     autoreconf -si
-    ./configure
+    ./configure PACKAGE_VERSION=$DYNARE_VERSION
     make dist
     # Move tarball
-    mv $BASENAME.tar.xz $SOURCES_DIRECTORY/$TARBALL_NAME
+    mv dynare-$DYNARE_VERSION.tar.xz $SOURCES_DIRECTORY/$TARBALL_NAME
     ln --relative --symbolic --force $SOURCES_DIRECTORY/$TARBALL_NAME $SOURCES_DIRECTORY/dynare-latest-src.tar.xz
 fi
 
 # Extract tarball in BUILDS_DIRECTORY
 if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
+    echo "$THIS_BUILD_DIRECTORY"
     if [ -d $THIS_BUILD_DIRECTORY ]; then
 	if [ $FORCE_BUILD -eq 1 ]; then
 	    rm -rf $THIS_BUILD_DIRECTORY
 	    cd $SOURCES_DIRECTORY
-	    tar xavf $TARBALL_NAME -C $BUILDS_DIRECTORY/
+	    THIS_BUILD_PATH=`tar xvf $TARBALL_NAME -C $BUILDS_DIRECTORY/ | sed -e 's@/.*@@' | uniq`
+	    if ! [ "$BUILDS_DIRECTORY/$THIS_BUILD_PATH" -eq "$THIS_BUILD_DIRECTORY" ]
+	    then
+	       mv $BUILDS_DIRECTORY/$THIS_BUILD_PATH $THIS_BUILD_DIRECTORY
+	    fi
 	fi
     else
 	cd $SOURCES_DIRECTORY
+	THIS_BUILD_PATH=`tar xvf $TARBALL_NAME -C $BUILDS_DIRECTORY/ | sed -e 's@/.*@@' | uniq`
 	tar xavf $TARBALL_NAME -C $BUILDS_DIRECTORY/
+	if ! [ "$BUILDS_DIRECTORY/$THIS_BUILD_PATH" -eq "$THIS_BUILD_DIRECTORY" ]
+	then
+	   mv $BUILDS_DIRECTORY/$THIS_BUILD_PATH $THIS_BUILD_DIRECTORY
+	fi
     fi
 fi
-
 
 if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     # Go to the build directory
@@ -174,8 +219,8 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
 		--with-matio=$LIB32/matIO \
 		--disable-octave \
 		--disable-matlab \
-		PACKAGE_VERSION=$VERSION \
-		PACKAGE_STRING="dynare $VERSION"
+		PACKAGE_VERSION=$DYNARE_VERSION \
+		PACKAGE_STRING="$VERSION"
     make clean
     make -j$NTHREADS -C doc pdf html
     make -j$NTHREADS -C dynare++ pdf
@@ -190,8 +235,8 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
 		--with-lapack=$LIB64/Lapack/liblapack.a \
 		--with-matio=$LIB64_DIR/matio \
 		--disable-octave --disable-matlab \
-		PACKAGE_VERSION=$VERSION \
-		PACKAGE_STRING="dynare $VERSION"
+		PACKAGE_VERSION=$DYNARE_VERSION \
+		PACKAGE_STRING="$VERSION"
     make -C preprocessor clean
     make -C preprocessor -j$NTHREADS all
     x86_64-w64-mingw32-strip matlab/preprocessor64/dynare_m.exe
@@ -214,10 +259,10 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     export TMP_DIRECTORY
     export THIS_BUILD_DIRECTORY
     export ROOT_DIRECTORY
-    export BASENAME
     export LIB32
     export LIB64
     export VERSION
+    export DYNARE_VERSION
     export NTHREADS
     export -f movedir
     export -f build_windows_matlab_mex_32
@@ -232,11 +277,11 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
     cp -p $ROOT_DIRECTORY/libs/lib32/*.dll $THIS_BUILD_DIRECTORY/dynare++ # The windows installer also distributes the dll for dynare++
     makensis dynare.nsi
     if [ $SIGN_DYNARE -eq 1 -a ! -f "$ROOT_DIRECTORY/impossible-to-sign-dynare" ]; then
-        $ROOT_DIRECTORY/signature/osslsigncode sign -pkcs12 $ROOT_DIRECTORY/dynare-object-signing.p12 -n Dynare -i http://www.dynare.org -in dynare-$VERSION-win.exe -out dynare-$VERSION-win-signed.exe
-        rm dynare-$VERSION-win.exe
-        mv dynare-$VERSION-win-signed.exe $ROOT_DIRECTORY/win/$WINDOWS_EXE_NAME
+        $ROOT_DIRECTORY/signature/osslsigncode sign -pkcs12 $ROOT_DIRECTORY/dynare-object-signing.p12 -n Dynare -i http://www.dynare.org -in dynare-$DYNARE_VERSION-win.exe -out dynare-$DYNARE_VERSION-win-signed.exe
+        rm dynare-$DYNARE_VERSION-win.exe
+        mv dynare-$DYNARE_VERSION-win-signed.exe $ROOT_DIRECTORY/win/$WINDOWS_EXE_NAME
     else
-	mv dynare-$VERSION-win.exe $ROOT_DIRECTORY/win/$WINDOWS_EXE_NAME
+	mv dynare-$DYNARE_VERSION-win.exe $ROOT_DIRECTORY/win/$WINDOWS_EXE_NAME
     fi
     ln --relative --symbolic --force $ROOT_DIRECTORY/win/$WINDOWS_EXE_NAME $ROOT_DIRECTORY/win/dynare-latest-win.exe
     cd $THIS_BUILD_DIRECTORY
@@ -246,9 +291,32 @@ fi
 if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     # Go to the build directory
     cd $THIS_BUILD_DIRECTORY
-    ZIPDIR=$ROOT_DIRECTORY/$VERSION
+    # Set name of the root directory in the ZIP archive
+    if [ -z "RELEASE" ]
+    then
+	# Not an official release (git hash included in the name)
+	ZIPDIR=$ROOT_DIRECTORY/$VERSION
+	ZIPNAME=$VERSION
+    else
+	if [ $RELEASE -eq 0 ]
+	then
+	    # Not an official release (git hash included in the name)
+	    ZIPDIR=$ROOT_DIRECTORY/$VERSION
+	    ZIPNAME=$VERSION
+	else
+	    if [ $RELEASE -eq 1 ]
+	    then
+		# Official release (git hash not included in the name)
+		ZIPDIR=$ROOT_DIRECTORY/$DYNARE_VERSION
+		ZIPNAME=$DYNARE_VERSION
+	    else
+		echo "Variable RELEASE should be equal to 0 or 1 in configure.inc!"
+		exit 1
+	    fi
+	fi
+    fi
     if [ -d $ZIPDIR ]; then
-	rm $ZIPDIR
+	rm -r $ZIPDIR
     fi
     mkdir -p $ZIPDIR
     cp -p NEWS $ZIPDIR
@@ -284,7 +352,7 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     cp -p dynare++/integ/cc/integ.pdf $ZIPDIR/doc/dynare++
     cp -p dynare++/kord/kord.pdf $ZIPDIR/doc/dynare++
     cd $ROOT_DIRECTORY
-    zip -r dynare-$VERSION-win.zip $VERSION
+    zip -r dynare-$VERSION-win.zip $ZIPNAME
     mv dynare-$VERSION-win.zip $ROOT_DIRECTORY/zip/$WINDOWS_ZIP_NAME
     ln --relative --symbolic --force $ROOT_DIRECTORY/zip/$WINDOWS_ZIP_NAME $ROOT_DIRECTORY/zip/dynare-latest-win.zip
     rm -rf $ZIPDIR

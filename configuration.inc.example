@@ -32,6 +32,13 @@ VERSION=
 MATLAB_PATH=/usr/local/MATLAB/R2016a
 MATLAB_VERS=2016a
 
+## --------------
+## DYNARE VERSION
+## --------------
+
+DYNARE_VERSION=4.5.0
+RELEASE=1
+
 ## -------------
 ## BUILD OPTIONS
 ## -------------
