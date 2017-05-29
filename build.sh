@@ -81,7 +81,7 @@ then
     else
 	# Stable or customized version.
 	VERSION=dynare-$DYNARE_VERSION-$LAST_HASH
-	if [ -z $RELEASE ]
+	if [ -z "$RELEASE" ]
 	then
 	    # Not an official release (append git hash)
 	    DYNARE_VERSION_SHORT=$DYNARE_VERSION-$SHORT_SHA
@@ -292,7 +292,7 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     # Go to the build directory
     cd $THIS_BUILD_DIRECTORY
     # Set name of the root directory in the ZIP archive
-    if [ -z "RELEASE" ]
+    if [ -z "$RELEASE" ]
     then
 	# Not an official release (git hash included in the name)
 	ZIPDIR=$ROOT_DIRECTORY/$VERSION
