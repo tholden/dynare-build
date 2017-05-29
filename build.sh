@@ -320,6 +320,7 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     fi
     mkdir -p $ZIPDIR
     cp -p NEWS $ZIPDIR
+    cp -p VERSION $ZIPDIR
     cp -p license.txt $ZIPDIR
     cp -p windows/mexopts-win32.bat $ZIPDIR
     cp -p windows/mexopts-win64.bat $ZIPDIR
