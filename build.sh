@@ -60,14 +60,13 @@ fi
 DATE=`date --rfc-3339=date`
 
 # Get last commit sha1 hash in selected branch (GIT_BRANCH on GIT_REMOTE)
-LAST_HASH=`git ls-remote $GIT_REMOTE refs/heads/$GIT_BRANCH | cut -f 1`
-SHORT_SHA=`echo $LAST_HASH | cut -c1-7`
-
-if [ -z "LAST_HASH" ]
-then
+{
+    LAST_HASH=`git ls-remote $GIT_REMOTE refs/heads/$GIT_BRANCH | cut -f 1`
+    SHORT_SHA=`echo $LAST_HASH | cut -c1-7`
+} || {
     echo "Cannot get the last commit's hash!"
     exit 1
-fi
+}
 
 # Get Dynare version (sets value returned by matlab/dynare_version.m)
 if [ -n "DYNARE_VERSION" ]
