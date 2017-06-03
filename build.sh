@@ -27,6 +27,23 @@
 # Exit on first error
 set -ex
 
+# Check network
+{
+    if ping -q -c 1 -W 1 google.com &>/dev/null
+    then
+	echo "Network is up!"
+    else
+	if ping -q -c 1 -W 1 8.8.8.8 &>/dev/null
+	then
+	    echo "DNS is not working!"
+	    echo "Please check /etc/resolv.conf."
+	else
+	    echo "Network is down!"
+	fi
+	exit 1
+    fi
+} 2> /dev/null
+
 # Set root directory
 THISSCRIPT=$(readlink -f $0)
 ROOT_DIRECTORY=`dirname $THISSCRIPT`
@@ -60,13 +77,9 @@ fi
 DATE=`date --rfc-3339=date`
 
 # Get last commit sha1 hash in selected branch (GIT_BRANCH on GIT_REMOTE)
-{
-    LAST_HASH=`git ls-remote $GIT_REMOTE refs/heads/$GIT_BRANCH | cut -f 1`
-    SHORT_SHA=`echo $LAST_HASH | cut -c1-7`
-} || {
-    echo "Cannot get the last commit's hash!"
-    exit 1
-}
+LAST_HASH=`git ls-remote $GIT_REMOTE refs/heads/$GIT_BRANCH | cut -f 1`
+SHORT_SHA=`echo $LAST_HASH | cut -c1-7`
+
 
 # Get Dynare version (sets value returned by matlab/dynare_version.m)
 if [ -n "DYNARE_VERSION" ]
