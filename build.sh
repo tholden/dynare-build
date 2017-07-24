@@ -339,8 +339,6 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
     cp -p windows/README.txt $ZIPDIR
     mkdir -p $ZIPDIR/contrib/ms-sbvar/TZcode
     cp -pr contrib/ms-sbvar/TZcode/MatlabFiles $ZIPDIR/contrib/ms-sbvar/TZcode
-    mkdir -p $ZIPDIR/contrib/jsonlab
-    cp -pr contrib/jsonlab/* $ZIPDIR/contrib/jsonlab
     mkdir $ZIPDIR/mex
     cp -pr mex/octave $ZIPDIR/mex
     cp -pr mex/octave32 $ZIPDIR/mex
