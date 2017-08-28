@@ -66,7 +66,7 @@ then
 else
     tput setaf 1; echo "I did not find any configuration file! Use defaults"
     # Set Dynare sources
-    GIT_REMOTE=https://github.com/DynareTeam/dynare.git
+    GIT_REMOTE=https://github.com/tholden/dynare.git
     GIT_BRANCH=master
     VERSION=
     # Set the number of snapshots to be kept on the server.
@@ -123,8 +123,8 @@ LIB32=$ROOT_DIRECTORY/libs/lib32
 LIB64=$ROOT_DIRECTORY/libs/lib64
 
 # Set name of directories
-GITREPO_DIRECTORY=$ROOT_DIRECTORY/git
-GITWORK_DIRECTORY=$GITREPO_DIRECTORY/$LAST_HASH
+GITREPO_DIRECTORY=$ROOT_DIRECTORY/..
+GITWORK_DIRECTORY=$GITREPO_DIRECTORY
 SOURCES_DIRECTORY=$ROOT_DIRECTORY/tar
 WINDOWS_EXE_DIRECTORY=$ROOT_DIRECTORY/win
 WINDOWS_ZIP_DIRECTORY=$ROOT_DIRECTORY/zip
@@ -142,35 +142,8 @@ WINDOWS_ZIP_NAME=$__BASENAME__-win.zip
 
 # Set default values for dummy variables
 MAKE_SOURCE_TARBALL=1
-CLONE_REMOTE_REPOSITORY=1
 BUILD_WINDOWS_EXE=1
 BUILD_WINDOWS_ZIP=1
-
-# Test if there is something new on the remote.
-if [ -d "$GITWORK_DIRECTORY" ]; then
-    if [ -f "$SOURCES_DIRECTORY/$TARBALL_NAME"  ]; then
-	if [ -f "$WINDOWS_EXE_DIRECTORY/WINDOWS_EXE_NAME" ]; then
-	    if [ -f  "$WINDOWS_ZIP_DIRECTORY/WINDOWS_ZIP_NAME" ]; then
-		echo "Dynare ($LAST_HASH) has already been compiled!"
-		BUILD_WINDOWS_ZIP=0
-	    fi
-	    BUILD_WINDOWS_EXE=0
-	else
-	    BUILD_WINDOWS_EXE=1
-	fi
-	MAKE_SOURCE_TARBALL=0
-    else
-	MAKE_SOURCE_TARBALL=1
-    fi
-    CLONE_REMOTE_REPOSITORY=0
-else
-    CLONE_REMOTE_REPOSITORY=1
-fi
-
-# Clone remote branch
-if [ $CLONE_REMOTE_REPOSITORY -eq 1 ]; then
-    git clone --recursive --depth 1 --branch $GIT_BRANCH $GIT_REMOTE $GITWORK_DIRECTORY
-fi
 
 if [ $MAKE_SOURCE_TARBALL -eq 1 ]; then
     # Go into build directory
@@ -189,7 +162,7 @@ if [ $MAKE_SOURCE_TARBALL -eq 1 ]; then
     cd $GITWORK_DIRECTORY
     # Create snapshot source (tarball)
     autoreconf -si
-    ./configure PACKAGE_VERSION=$DYNARE_VERSION
+    ./configure PACKAGE_VERSION=$DYNARE_VERSION CFLAGS="-O3" CXXFLAGS="-O3" FFLAGS="-O3" MATLAB_CFLAGS="-O3" MATLAB_CXXFLAGS="-O3" MATLAB_FFLAGS="-O3" MATLAB_MEX_CFLAGS="-O3" MATLAB_MEX_CXXFLAGS="-O3" MATLAB_MEX_FFLAGS="-O3" --enable-openmp
     make dist
     # Move tarball
     mv dynare-$DYNARE_VERSION.tar.xz $SOURCES_DIRECTORY/$TARBALL_NAME
@@ -232,7 +205,8 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
 		--disable-octave \
 		--disable-matlab \
 		PACKAGE_VERSION=$DYNARE_VERSION \
-		PACKAGE_STRING="$VERSION"
+		PACKAGE_STRING="$VERSION" \
+		CFLAGS="-O3" CXXFLAGS="-O3" FFLAGS="-O3" MATLAB_CFLAGS="-O3" MATLAB_CXXFLAGS="-O3" MATLAB_FFLAGS="-O3" MATLAB_MEX_CFLAGS="-O3" MATLAB_MEX_CXXFLAGS="-O3" MATLAB_MEX_FFLAGS="-O3" --enable-openmp
     make clean
     make -j$NTHREADS -C doc pdf html
     make -j$NTHREADS -C dynare++ pdf
@@ -248,7 +222,8 @@ if [ $BUILD_WINDOWS_EXE -eq 1 ]; then
 		--with-matio=$LIB64_DIR/matio \
 		--disable-octave --disable-matlab \
 		PACKAGE_VERSION=$DYNARE_VERSION \
-		PACKAGE_STRING="$VERSION"
+		PACKAGE_STRING="$VERSION" \
+		CFLAGS="-O3" CXXFLAGS="-O3" FFLAGS="-O3" MATLAB_CFLAGS="-O3" MATLAB_CXXFLAGS="-O3" MATLAB_FFLAGS="-O3" MATLAB_MEX_CFLAGS="-O3" MATLAB_MEX_CXXFLAGS="-O3" MATLAB_MEX_FFLAGS="-O3" --enable-openmp
     make -C preprocessor clean
     make -C preprocessor -j$NTHREADS all
     x86_64-w64-mingw32-strip matlab/preprocessor64/dynare_m.exe
@@ -374,7 +349,6 @@ if [ $BUILD_WINDOWS_ZIP -eq 1 ]; then
 fi
 
 # Clean build and snapshot directories
-delete_oldest_folders $GITREPO_DIRECTORY $N_SNAPSHOTS_TO_KEEP
 delete_oldest_folders $BUILDS_DIRECTORY $N_SNAPSHOTS_TO_KEEP
 delete_oldest_files_with_given_extension $SOURCES_DIRECTORY tar.xz $N_SNAPSHOTS_TO_KEEP
 delete_oldest_files_with_given_extension $WINDOWS_EXE_DIRECTORY exe $N_SNAPSHOTS_TO_KEEP
@@ -384,60 +358,3 @@ delete_oldest_files_with_given_extension $WINDOWS_ZIP_DIRECTORY zip $N_SNAPSHOTS
 create_checksum_files $SOURCES_DIRECTORY
 create_checksum_files $WINDOWS_EXE_DIRECTORY
 create_checksum_files $WINDOWS_ZIP_DIRECTORY
-
-# Push snapshot on server
-if [ -f "$ROOT_DIRECTORY/impossible-to-push-dynare" ]; then
-    exit 0
-else
-    SNAPSHOT_MANAGER_KEY="ssh -i $ROOT_DIRECTORY/keys/snapshot-manager_rsa"
-    export RSYNC_RSH=$SNAPSHOT_MANAGER_KEY
-fi
-
-if [ -v BUILD_INTERNAL_DOC -a $BUILD_INTERNAL_DOC -eq 1 ]; then
-    # Build internal documentation (org-mode and m2html)
-    cd $THIS_BUILD_DIRECTORY
-    build_internal_documentation
-    build_m2html_documentation
-    if [ -v PUSH_INTERNAL_DOC -a $PUSH_INTERNAL_DOC -eq 1 ]; then
-	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH -a ! -f "$ROOT_DIRECTORY/impossible-to-push-dynare" ]; then
-	    rsync -v -r -t --delete $ROOT_DIRECTORY/dynare-matlab-m2html $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
-	    rsync -v -r -t --delete $ROOT_DIRECTORY/dynare-internals $REMOTE_USER@$REMOTE_SERVER:$REMOTE_PATH
-	else
-	    echo "Could not push internal documentation!"
-	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
-	fi
-    fi
-fi
-
-if [ -v PUSH_SNAPSHOT_SRC ]; then
-    if [ $PUSH_SNAPSHOT_SRC -eq 1 ]; then
-	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH -a -v REMOTE_SNAPSHOT_NAME ]; then
-	    rsync -v -r -t -a --delete $ROOT_DIRECTORY/tar/ $REMOTE_USER@$REMOTE_SERVER:${REMOTE_PATH}${REMOTE_SNAPSHOT_NAME}/source/
-	else
-	    echo "Could not push source tarball!"
-	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
-	fi
-    fi
-fi
-
-if [ -v PUSH_SNAPSHOT_EXE ]; then
-    if [ $PUSH_SNAPSHOT_EXE -eq 1 ]; then
-	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH -a -v REMOTE_SNAPSHOT_NAME ]; then
-	    rsync -v -r -t -a --delete $ROOT_DIRECTORY/win/ $REMOTE_USER@$REMOTE_SERVER:${REMOTE_PATH}$REMOTE_SNAPSHOT_NAME/windows/
-	else
-	    echo "Could not push windows installer!"
-	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
-	fi
-    fi
-fi
-
-if [ -v PUSH_SNAPSHOT_ZIP ]; then
-    if [ $PUSH_SNAPSHOT_ZIP -eq 1 ]; then
-	if [ -v REMOTE_USER -a -v REMOTE_SERVER -a -v REMOTE_PATH -a -v REMOTE_SNAPSHOT_NAME ]; then
-	    rsync -v -r -t -a --delete $ROOT_DIRECTORY/zip/ $REMOTE_USER@$REMOTE_SERVER:${REMOTE_PATH}$REMOTE_SNAPSHOT_NAME/windows-zip/
-	else
-	    echo "Could not push windows zip archive!"
-	    echo "Please set REMOTE_USER, REMOTE_DIRECTORY and REMOTE_PATH in configuration file."
-	fi
-    fi
-fi
